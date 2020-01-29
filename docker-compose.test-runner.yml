@@ -1,0 +1,9 @@
+version: '3'
+services:
+  test-runner:
+    build: .
+    command: python tests/units.py
+    volumes:
+     - .:/app
+    stdin_open: true
+    tty: true

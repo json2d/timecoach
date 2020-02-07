@@ -201,7 +201,7 @@ class TestEverything(unittest.TestCase):
         a_datetime = dateparser.parse('1-1-90 11:45:00')
         b_datetime = a_datetime + timedelta(days=1)
 
-        weird_intervals = [dict(seconds=51), dict(minutes=11), dict(hours=3)]
+        weird_intervals = [dict(seconds=51), dict(minutes=11), dict(hours=7)]
         
         for interval in weird_intervals:
             with self.assertRaises(AssertionError):

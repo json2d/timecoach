@@ -46,16 +46,29 @@ timecoach.chunk(start, end, hours=12) # half days
 timecoach.chunk(start, end, months=3) # quarter years
 ```
 
-the caveat with this is that the chunk size needs to be divisible by its parent interval.
+there are a few caveat with custom chunk sizes:
+- the chunk interval must be divisible by its parent interval
+- the chunk interval must be defined with a single interval type 
+- the chunk interval value must be a non-zero positive integer
 
-for example the following would be invalid:
+for example the following would throw exceptions:
 
 ```py
-timecoach.chunk(minutes=13)
-# AssertionError: 1 hour / 60 minutes is not divisible by 13 minutes
+timecoach.chunk(start, end, minutes=13)
+# AssertionError:  13 minutes is not divisible by parent interval 1 hours (60 minutes)
+
+timecoach.chunk(start, end, hours=1, minutes=15)
+# AssertionError: 1 hours 15 minutes does not contain only one interval type
+
+timecoach.chunk(start, end, hour=.25)
+# AssertionError: .25 hours is not non-zero positive integer interval value
+
+timecoach.chunk(start, end, hour=-1)
+# AssertionError: .25 hours is not non-zero positive integer interval value
+
 ```
 
-if your chunk interval is `year` then sky's the limit since its the highest interval:
+if your chunk interval type is `year` then sky's the limit since its the highest interval:
 
 ```py
 timecoach.chunk(start_of_time, now, years=1000000) # every million years since the start of time

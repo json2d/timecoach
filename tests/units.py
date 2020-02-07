@@ -186,5 +186,48 @@ class TestEverything(unittest.TestCase):
             list(timecoach.chunk_hours(
                 a_datetime, b_datetime))  # using `list` to call iterator
 
+    def test_no_non_positive_intervals(self):
+        a_datetime = dateparser.parse('1-1-90 11:45:00')
+        b_datetime = a_datetime + timedelta(days=1)
+
+        weird_intervals = [dict(seconds=-10), dict(minutes=0), dict(hours=-999)]
+        
+        for interval in weird_intervals:
+            with self.assertRaises(AssertionError):
+                list(timecoach.chunk(
+                    a_datetime, b_datetime, **interval))  # using `list` to call iterator
+                     
+    def test_no_indivisible_intervals(self):
+        a_datetime = dateparser.parse('1-1-90 11:45:00')
+        b_datetime = a_datetime + timedelta(days=1)
+
+        weird_intervals = [dict(seconds=51), dict(minutes=11), dict(hours=3)]
+        
+        for interval in weird_intervals:
+            with self.assertRaises(AssertionError):
+                list(timecoach.chunk(
+                    a_datetime, b_datetime, **interval))  # using `list` to call iterator
+                     
+    def test_no_floaty_intervals(self):
+
+        a_datetime = dateparser.parse('1-1-90 11:45:00')
+        b_datetime = a_datetime - timedelta(
+            minutes=30)  # going backwards in time
+
+        weird_intervals = [dict(seconds=.5), dict(minutes=3.14), dict(hours=.9999)]
+        
+        for interval in weird_intervals:        
+            with self.assertRaises(AssertionError):
+                list(timecoach.chunk(
+                    a_datetime, b_datetime, **interval))  # using `list` to call iterator
+              
+    def test_no_multitype_intervals(self):
+        a_datetime = dateparser.parse('1-1-90 11:45:00')
+        b_datetime = a_datetime + timedelta(days=1)  # start and end datetime are equal
+
+        with self.assertRaises(AssertionError):
+            list(timecoach.chunk(
+                a_datetime, b_datetime, minutes=11, hours=2))  # using `list` to call iterator                
+
 
 unittest.main()

@@ -44,14 +44,14 @@ def chunk(start, end, **interval):
 
     interval_keys = list(interval.keys())
 
-    assert len(interval) > 0, 'missing arg `interval_key` is required'
-    assert len(interval
-               ) == 1, 'cannot have more than one interval_key level: {}'.format(
-                   interval_keys)
+    assert len(interval) > 0, 'the `interval` argument is required'
+    assert len(interval) == 1, '{} does not contain only one interval type'.format(" ".join(["{} {}".format(v,k) for k,v in interval.items()]))
 
     interval_key = interval_keys[0]
     interval_value = interval[interval_key]
     interval_idx = INTERVAL_NAMES_PLURAL.index(interval_key)
+
+    assert is_non_zero_integer(interval_value), '{} {} is not non-zero positive integer interval value'.format(interval_key, interval_value)
 
     chunking_interval_name = INTERVAL_NAMES_PLURAL[interval_idx]
     chunking_timedelta = INTERVAL_CHUNKING_TIMEDELTAS[chunking_interval_name](
@@ -119,3 +119,13 @@ def chunk(start, end, **interval):
 def closest(lst, K):
 
     return lst[min(range(len(lst)), key=lambda i: abs(lst[i] - K))]
+
+def is_integer(n):
+    if isinstance(n, int):
+        return True
+    if not isinstance(n, float):
+        return n.is_integer()
+    return False
+
+def is_non_zero_integer(n):
+    return is_integer(n) and n > 0

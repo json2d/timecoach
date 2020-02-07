@@ -44,14 +44,21 @@ def chunk(start, end, **interval):
 
     interval_keys = list(interval.keys())
 
-    assert len(interval) > 0, 'missing arg `interval_key` is required'
-    assert len(interval
-               ) == 1, 'cannot have more than one interval_key level: {}'.format(
-                   interval_keys)
+    assert len(interval) > 0, 'the `interval` argument is required'
+    assert len(interval) == 1, '{} does not contain only one interval type'.format(human_readable_interval(interval))
 
     interval_key = interval_keys[0]
     interval_value = interval[interval_key]
+
+    assert is_non_zero_integer(interval_value), '{} is not non-zero positive integer interval value'.format(human_readable_interval(interval))
+
     interval_idx = INTERVAL_NAMES_PLURAL.index(interval_key)
+
+    interval_factor = INTERVAL_FACTOR[interval_key]
+    parent_interval_key = INTERVAL_NAMES_PLURAL[interval_idx - 1] # safe if index is 
+    
+    assert interval_factor is None or is_integer(interval_factor/interval_value), '{} is not divisible by parent interval 1 {} ({} {})'.format(human_readable_interval(interval), parent_interval_key, interval_factor, interval_key)
+
 
     chunking_interval_name = INTERVAL_NAMES_PLURAL[interval_idx]
     chunking_timedelta = INTERVAL_CHUNKING_TIMEDELTAS[chunking_interval_name](
@@ -67,9 +74,6 @@ def chunk(start, end, **interval):
     # {'minute': 0, 'second': 0, 'microsecond': 0}
     for interval_name in rounding_interval_names:
         rounding[interval_name] = INTERVAL_ROUNDING_VALUES[interval_name]
-
-
-    interval_factor = INTERVAL_FACTOR[interval_key]
 
     if interval_factor is not None and interval_value > 1:
         interval_indices = int(interval_factor / interval_value)
@@ -119,3 +123,16 @@ def chunk(start, end, **interval):
 def closest(lst, K):
 
     return lst[min(range(len(lst)), key=lambda i: abs(lst[i] - K))]
+
+def is_integer(n):
+    if isinstance(n, int):
+        return True
+    if isinstance(n, float):
+        return n.is_integer()
+    return False
+
+def is_non_zero_integer(n):
+    return is_integer(n) and n > 0
+
+def human_readable_interval(interval):
+    return " ".join(["{} {}".format(v,k) for k,v in interval.items()])
